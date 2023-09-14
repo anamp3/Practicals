@@ -2,10 +2,14 @@ import files
 import csv
 
 def Add_Sales_Data(sales):
+
     amount = float(input('Amount:\t\t'))
     year = int(input('Year:\t\t'))
     month = int(input('Month (1-12):\t'))
     day = int(input('Day (1-31):\t'))
+
+    # this was for the try ecxcepts but they ended up no wanting my code to add to the csv file
+    # print("Please enter a decimal for Amount, and integer for Year, Month, and Day")
 
     Quarter(month)
 
@@ -21,10 +25,16 @@ def Quarter(month):
     quarter = (month - 1) // 3 + 1
     return quarter
 
+def View_Sales(sales):
+    print("\t\tDate\tQuater\tAmount")
+    print("__________________________________________")
+    
+
+#this is for importing I am meant to put the view function in it for simpler approach
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
-    print("\tDate\tQuater\tAmount")
-    print("__________________________________________")
+    
+   
     with open(file_import, "r", newline="") as imported:
         line = csv.reader(imported)
         for i, sale in enumerate (line, start=1):
