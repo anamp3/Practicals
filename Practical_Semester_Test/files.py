@@ -3,7 +3,7 @@ import csv
 FILE = "sales.csv"
 
 def Append_TextFile():
-    with open('imported_files.txt', 'a') as file:
+    with open('imported_files.txt', 'w') as file:
         file.write(FILE+ '\n')
 
 def Read_TextFile():
@@ -19,12 +19,12 @@ def Read_TextFile():
 
 '''This is the input that will be from the user'''
 def Write_Sales(sales):
-    with open(FILE, 'w', newline="") as file:
+    with open(FILE, 'w',) as file:
         write = csv.writer(file)
         write.writerows(sales)
 
 def Read_Sales():
-    sales = [[]]
+    sales = []
     with open(FILE, 'r', newline="")as file:
         read = csv.reader(file)
         for line in read: 
