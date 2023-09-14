@@ -11,8 +11,6 @@ def Add_Sales_Data(sales):
     # this was for the try ecxcepts but they ended up no wanting my code to add to the csv file
     # print("Please enter a decimal for Amount, and integer for Year, Month, and Day")
 
-    Quarter(month)
-
     sale = [year, month, day, amount]
     sales.append(sale)
 
@@ -22,23 +20,52 @@ def Add_Sales_Data(sales):
 
 
 def Quarter(month):
-    quarter = (month - 1) // 3 + 1
+    if month == '?':
+        quarter = 0
+    else:
+        quarter = (month - 1) // 3 + 1
+        
     return quarter
 
+#need to set the alignment of these tabs and amounts displayed and also tell the user that this file contains bad data
+#impot must take the code of view sales
 def View_Sales(sales):
-    print("\t\tDate\tQuater\tAmount")
+    totalAmount = 0
+    bad_data = 0
+    print("\t\tDate\tQuarter\tAmount")
     print("__________________________________________")
+    for i, sale in enumerate (sales, start=1):
+        
+        if sale[0] == "":
+            sale[0] = '?'
+        if sale[1] == "":
+            sale[1] = '?'
+        if sale[2] == "":
+            sale[2] = '?'
+        if sale[3] == "":
+            sale[3] = '?'
+        
+        if sale[0] == '?' or sale[1] == '?' or sale[2] == '?' or sale[3] == '?':
+            print(f"{i}.*\t{sale[0]}-{sale[1]}-{sale[2]}\t{Quarter(sale[1])}\t ${sale[3]}")
+            bad_data += 1
+        else: #viewsales must onlu have this else statement in it with the enumerate above
+            quarter = Quarter(int(sale[1]))
+            print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t ${sale[3]}")
+            totalAmount += float(sale[3])
+    
+    print(f"TOTAL:\t\t\t\t${totalAmount}")
+
+    
+        
+    
     
 
 #this is for importing I am meant to put the view function in it for simpler approach
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
+    View_Sales(sales)
     
-   
-    with open(file_import, "r", newline="") as imported:
-        line = csv.reader(imported)
-        for i, sale in enumerate (line, start=1):
-            print(f"{i}.\t")
+        
 
 
     
@@ -59,12 +86,14 @@ def Command_Menu():
 def main():
     Command_Menu()
     sales = files.Read_Sales()
-    command = input("Please enter a command: ")
     while True:
+        command = input("Please enter a command: ")
         if command.lower() == "import":
             Import_Sales(sales)
         elif command.lower() == "add":
             Add_Sales_Data(sales)
+        elif command.lower() == "view":
+            View_Sales(sales)
 
 if __name__ == "__main__":
     main()
