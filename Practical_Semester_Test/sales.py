@@ -1,5 +1,6 @@
 import files
 import csv
+from io import StringIO
 
 def Add_Sales_Data(sales):
 
@@ -36,6 +37,37 @@ def View_Sales(sales):
     print("__________________________________________")
     for i, sale in enumerate (sales, start=1):
         
+        quarter = Quarter(int(sale[1]))
+        print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t ${sale[3]}")
+        totalAmount += float(sale[3])
+
+    print("__________________________________________")
+    print(f"TOTAL:\t\t\t\t${totalAmount}")
+
+    
+        
+    
+    
+
+#this is for importing I am meant to put the view function in it for simpler approach
+def Import_Sales():
+    file_import = input("Enter file name to import: ")
+    totalAmount = 0
+    bad_data = 0
+
+    #imported the IO class or module then converted the input from the user to a csv file  so I can be able to loop trough it
+    converted = StringIO(file_import)
+
+    reader = csv.reader(converted)
+
+    # if not ".csv" in file_import:
+    #     file_import += ".csv"
+        
+
+    print("\t\tDate\tQuarter\tAmount")
+    print("__________________________________________")
+    for i, sale in enumerate (reader, start=1):
+        
         if sale[0] == "":
             sale[0] = '?'
         if sale[1] == "":
@@ -53,23 +85,12 @@ def View_Sales(sales):
             print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t ${sale[3]}")
             totalAmount += float(sale[3])
     
+    print("__________________________________________")
     print(f"TOTAL:\t\t\t\t${totalAmount}")
-
-    
-        
-    
-    
-
-#this is for importing I am meant to put the view function in it for simpler approach
-def Import_Sales(sales):
-    file_import = input("Enter file name to import: ")
-    View_Sales(sales)
     
         
 
 
-    
-    
 
 #maybe in the future store this in a separate module
 def Command_Menu():
@@ -89,7 +110,7 @@ def main():
     while True:
         command = input("Please enter a command: ")
         if command.lower() == "import":
-            Import_Sales(sales)
+            Import_Sales()
         elif command.lower() == "add":
             Add_Sales_Data(sales)
         elif command.lower() == "view":
