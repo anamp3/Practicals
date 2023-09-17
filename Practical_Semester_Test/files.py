@@ -18,10 +18,6 @@ def Read_TextFile():
             break
 
 
-def Clear_File():
-    with open('imported_files.txt', 'r+') as f:
-        f.truncate()
-
 '''This is the input that will be from the user'''
 def Write_Sales(sales):
     with open(FILE, 'w',newline="") as file:

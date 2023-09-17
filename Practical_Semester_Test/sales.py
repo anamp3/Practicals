@@ -1,8 +1,11 @@
-import files
+import files#importing the files module
 import csv
 from io import StringIO
-from os.path import exists
+from os.path import exists # in this context this function is for checking if the file being imported is available on the textfile
 
+
+'''The edd sales data function checks if valid input types are entered by the user, and if yes add the data to the csv file'''
+'''It also validates wherether if the correct quantities of the variables are entered'''
 def Add_Sales_Data(sales):
     while True:
         try:
@@ -39,9 +42,6 @@ def Add_Sales_Data(sales):
         except ValueError:
             print("Please enter a decimal for amount, and integers for values year, month, and day.")
         else:
-            # this was for the try ecxcepts but they ended up no wanting my code to add to the csv file
-            # print("Please enter a decimal for Amount, and integer for Year, Month, and Day")
-
             sale = [year, month, day, amount]
             sales.append(sale)
 
@@ -52,6 +52,7 @@ def Add_Sales_Data(sales):
         break
 
 
+'''This function is for calculating the quarter value but first checking to see the month value being passed to it.'''
 def Quarter(month):
     if month == '?':
         quarter = 0
@@ -77,29 +78,19 @@ def View_Sales(sales):
     print(f"TOTAL:\t\t\t\t\t${totalAmount}")
     print()
 
-    
-        
-    
-    
 
 #There is a textfile function that I need to do before importing
-#It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file
+'''It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file'''
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
     totalAmount = 0
     bad_data = 0
 
-    files.Read_TextFile()
+    files.Read_TextFile()#retrieves this from the files.py module which also contains the functions for adding and writing to a csv file
     files.Append_TextFile()
     
-
-    #imported the IO class or module then converted the input from the user to a csv file  so I can be able to loop trough it
-    converted = StringIO(file_import)
-
+    '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
     if exists(file_import):
-
-    # if not ".csv" in file_import:
-    #     file_import += ".csv"
     
         print()
         print("\tDate\t\tQuarter\t\tAmount")
@@ -117,7 +108,7 @@ def Import_Sales(sales):
             
             if sale[0] == '?' or sale[1] == '?' or sale[2] == '?' or sale[3] == '?':
                 print(f"{i}.*\t{sale[0]}-{sale[1]}-{sale[2]}\t{Quarter(sale[1])}\t\t${sale[3]}")
-                files.Clear_File()
+                Clear_File()
                 bad_data += 1
             else: #viewsales must onlu have this else statement in it with the enumerate above
                 quarter = Quarter(int(sale[1]))
@@ -132,9 +123,12 @@ def Import_Sales(sales):
     else:
         print("The file you are trying to import does not exist.")
         print()
-    
-        
 
+
+'''Function for clearing the textfile'''
+def Clear_File():
+    with open('imported_files.txt', 'r+') as f:
+        f.truncate()       
 
 
 #maybe in the future store this in a separate module
@@ -161,7 +155,7 @@ def main():
         elif command.lower() == "view":
             View_Sales(sales)
         elif command.lower() == "exit":
-            files.Clear_File()
+            Clear_File()#This clears the text file when the user exits the application 
             break
     print("Bye!")
 if __name__ == "__main__":
