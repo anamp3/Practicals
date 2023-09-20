@@ -157,6 +157,9 @@ def main():
         elif command.lower() == "exit":
             Clear_File()#This clears the text file when the user exits the application 
             break
+        else:
+            print("The command you entered is invalid.")
+            continue
     print("Bye!")
 if __name__ == "__main__":
     main()
