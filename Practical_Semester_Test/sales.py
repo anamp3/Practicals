@@ -3,7 +3,7 @@ import csv
 from io import StringIO
 from os.path import exists # in this context this function is for checking if the file being imported is available on the textfile
 
-
+#NB: Need to fix the alignment of the import when the month is not zero.
 '''The edd sales data function checks if valid input types are entered by the user, and if yes add the data to the csv file'''
 '''It also validates wherether if the correct quantities of the variables are entered'''
 def Add_Sales_Data(sales):
@@ -57,7 +57,7 @@ def Quarter(month):
     if month == '?':
         quarter = 0
     else:
-        quarter = (month - 1) // 3 + 1
+        quarter = (int(month) - 1) // 3 + 1
         
     return quarter
 
@@ -86,43 +86,44 @@ def Import_Sales(sales):
     totalAmount = 0
     bad_data = 0
 
-    files.Read_TextFile()#retrieves this from the files.py module which also contains the functions for adding and writing to a csv file
+    ithas = files.Read_TextFile()#retrieves this from the files.py module which also contains the functions for adding and writing to a csv file
     files.Append_TextFile()
     
-    '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
-    if exists(file_import):
-    
-        print()
-        print("\tDate\t\tQuarter\t\tAmount")
-        print("------------------------------------------------")
-        for i, sale in enumerate (sales, start=1):
-            
-            if sale[0] == "":
-                sale[0] = '?'
-            if sale[1] == "":
-                sale[1] = '?'
-            if sale[2] == "":
-                sale[2] = '?'
-            if sale[3] == "":
-                sale[3] = '?'
-            
-            if sale[0] == '?' or sale[1] == '?' or sale[2] == '?' or sale[3] == '?':
-                print(f"{i}.*\t{sale[0]}-{sale[1]}-{sale[2]}\t{Quarter(sale[1])}\t\t${sale[3]}")
-                Clear_File()
-                bad_data += 1
-            else: #viewsales must onlu have this else statement in it with the enumerate above
-                quarter = Quarter(int(sale[1]))
-                print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t\t${sale[3]}")
-                totalAmount += float(sale[3])
+    if ithas != 0:
+        '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
+        if exists(file_import):
         
-        print("________________________________________________")
-        print(f"TOTAL:\t\t\t\t\t${totalAmount}")
-        print()
-        if bad_data > 0:
-            print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
-    else:
-        print("The file you are trying to import does not exist.")
-        print()
+            print()
+            print("\tDate\t\tQuarter\t\tAmount")
+            print("------------------------------------------------")
+            for i, sale in enumerate (sales, start=1):
+                
+                if sale[0] == "":
+                    sale[0] = '?'
+                if sale[1] == "":
+                    sale[1] = '?'
+                if sale[2] == "":
+                    sale[2] = '?'
+                if sale[3] == "":
+                    sale[3] = '?'
+                
+                if sale[0] == '?' or sale[1] == '?' or sale[2] == '?' or sale[3] == '?':
+                    print(f"{i}.*\t{sale[0]}-{sale[1]}-{sale[2]}\t{Quarter(sale[1])}\t\t${sale[3]}")
+                    Clear_File()
+                    bad_data += 1
+                else: #viewsales must only have this else statement in it with the enumerate above
+                    quarter = Quarter(int(sale[1]))
+                    print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t\t${sale[3]}")
+                    totalAmount += float(sale[3])
+            
+            print("________________________________________________")
+            print(f"TOTAL:\t\t\t\t\t${totalAmount}")
+            print()
+            if bad_data > 0:
+                print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
+        else:
+            print("The file you are trying to import does not exist.")
+            print()
 
 
 '''Function for clearing the textfile'''
