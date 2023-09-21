@@ -2,46 +2,60 @@ import files#importing the files module
 import csv
 from io import StringIO
 from os.path import exists # in this context this function is for checking if the file being imported is available on the textfile
-
+from datetime import datetime
+from decimal import Decimal#this decimal module is used below but I had to sleep because of fatigue
 
 '''The edd sales data function checks if valid input types are entered by the user, and if yes add the data to the csv file'''
 '''It also validates wherether if the correct quantities of the variables are entered'''
 def Add_Sales_Data(sales):
+
+    amount = float(input(Decimal('Amount:\t\t')))
+    if amount <= 0:
+        print("Amount must be greater than zero.")
+        print()
+
     while True:
+
         try:
-            amount = float(input('Amount:\t\t'))
-            if amount <= 0:
-                print("Amount must be greater than zero.")
-                print()
-                continue
-            year = int(input('Year:\t\t'))
-            if year < 2000 or year > 9999:
-                print("The year should be between 2000 and 9999, inclusive.")
-                print()
-                continue
-            month = int(input('Month (1-12):\t'))
-            if month < 1 or month > 12:
-                print("The month value should be between 1 and 12.")
-                print()
-                continue
-            day = int(input('Day (1-31):\t'))
-            print()
-            if day >= 1 and day <= 31:
-                if (month == 4 or month == 6 or month == 9 or month == 11) and day >= 31:
-                    print("The maximum day for month 4, 6, 9 and 11 is 30.")
-                    print()
-                    continue
-                elif month == 2 and day >= 29:
-                    print("The maximum day for month 2 is 28.")
-                    print()
-                    continue
-            else:
-                print("The days should be between 1 and 31, inclusive.")
-                print()
-                continue
+
+            format = "%Y-%m-%d"
+            date = input("Date (yyyy-mm-dd): ")
+
+            parsed_date = datetime.strptime(date, format)
+            year = parsed_date.year
+            month = parsed_date.month
+            day = parsed_date.day
+
+            # # year = int(input('Year:\t\t'))
+            # if year < 2000 or year > 9999:
+            #     print("The year should be between 2000 and 9999, inclusive.")
+            #     print()
+            #     continue
+            # # month = int(input('Month (1-12):\t'))
+            # if month < 1 or month > 12:
+            #     print("The month value should be between 1 and 12.")
+            #     print()
+            #     continue
+            # # day = int(input('Day (1-31):\t'))
+            # print()
+            # if day >= 1 and day <= 31:
+            #     if (month == 4 or month == 6 or month == 9 or month == 11) and day >= 31:
+            #         print("The maximum day for month 4, 6, 9 and 11 is 30.")
+            #         print()
+            #         continue
+            #     elif month == 2 and day >= 29:
+            #         print("The maximum day for month 2 is 28.")
+            #         print()
+            #         continue
+            # else:
+            #     print("The days should be between 1 and 31, inclusive.")
+            #     print()
+            #     continue
         except ValueError:
-            print("Please enter a decimal for amount, and integers for values year, month, and day.")
+            print("Date must be a valid 'yyyy-mm-dd' format.\n")
+            continue
         else:
+            region = input("Region:\t")
             sale = [year, month, day, amount]
             sales.append(sale)
 
@@ -84,7 +98,7 @@ def Import_Sales(sales):
     totalAmount = 0
     bad_data = 0
 
- 
+
     '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
     with open('imported_files.txt', 'r') as f:
         imported_files = f.readlines()
