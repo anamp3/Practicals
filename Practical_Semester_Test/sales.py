@@ -2,14 +2,15 @@ import files#importing the files module
 import csv
 from io import StringIO
 from os.path import exists # in this context this function is for checking if the file being imported is available on the textfile
-from datetime import datetime
-from decimal import Decimal#this decimal module is used below but I had to sleep because of fatigue
+from datetime import datetime#this is for the date formating
+from decimal import Decimal#this is for the total formating
+import locale#this is for the sales formating
 
 '''The edd sales data function checks if valid input types are entered by the user, and if yes add the data to the csv file'''
 '''It also validates wherether if the correct quantities of the variables are entered'''
 def Add_Sales_Data(sales):
 
-    amount = float(input(Decimal('Amount:\t\t')))
+    amount = float(input('Amount:\t\t'))
     if amount <= 0:
         print("Amount must be greater than zero.")
         print()
@@ -80,15 +81,18 @@ def View_Sales(sales):
     totalAmount = 0
     bad_data = 0
     print("\tDate\t\tQuarter\t\tAmount")
-    print("------------------------------------------------")
+    print("-------------------------------------------------")
     for i, sale in enumerate (sales, start=1):
-        
+        converted = float(sale[3])
+        localed = locale.format_string('%0.2f', converted) #this fucker is killing me need to come back to it at a later stage
         quarter = Quarter(int(sale[1]))
-        print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t\t${sale[3]}")
+        print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t\t${localed}")
         totalAmount += float(sale[3])
 
-    print("________________________________________________")
-    print(f"TOTAL:\t\t\t\t\t${totalAmount}")
+    print("_________________________________________________")
+    number = Decimal(totalAmount)
+    rounded = number.quantize(Decimal('0.00'))
+    print(f"TOTAL:\t\t\t\t\t${rounded}")
     print()
 
 
@@ -116,7 +120,7 @@ def Import_Sales(sales):
                 files.Append_TextFile()
                 print()
                 print("\tDate\t\tQuarter\t\tAmount")
-                print("------------------------------------------------")
+                print("-------------------------------------------------")
                 for i, sale in enumerate (sales, start=1):
                     
                     if sale[0] == "":
@@ -137,8 +141,10 @@ def Import_Sales(sales):
                         print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t\t${sale[3]}")
                         totalAmount += float(sale[3])
                 
-                print("________________________________________________")
-                print(f"TOTAL:\t\t\t\t\t${totalAmount}")
+                print("_________________________________________________")
+                number = Decimal(totalAmount)
+                rounded = number.quantize(Decimal('0.00'))
+                print(f"TOTAL:\t\t\t\t\t${rounded}")
                 print()
                 if bad_data > 0:
                     print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
