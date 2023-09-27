@@ -6,7 +6,7 @@ from datetime import datetime#this is for the date formating
 from decimal import Decimal#this is for the total formating
 import locale#this is for the sales formating
 
-
+#need to make sure that my container is a list of dictionaries dictionary not a list of list
 
 regions = {"w": "West",  "m": "Mountain", "c": "Central", "e": "East"}
 
@@ -109,6 +109,7 @@ def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
     totalAmount = 0
     bad_data = 0
+    grandTotal = 0
 
 
     '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
@@ -149,7 +150,26 @@ def Import_Sales(sales):
                         Clear_File()
                         bad_data += 1
                     else: #viewsales must only have this else statement in it with the enumerate above
-                        View_Sales(sales)
+                        converted = float(sale[2])
+                        locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
+                        localed = locale.format_string('%0.2f', converted, grouping=True) 
+
+                        #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
+                        date_str = sale[0]
+                        date_object = datetime.strptime(date_str, '%Y-%m-%d')
+                        month = date_object.month
+
+
+                        quarter = Quarter(int(month))
+                        region = Region(sale[1])
+                        print(f"{i}.\t{sale[0]}\t{quarter}\t\t{region}\t\t${localed}")
+                        totalAmount += float(sale[2])
+                        locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
+                        grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
+                
+                print("____________________________________________________________________")
+                print(f"TOTAL:\t\t\t\t\t\t\t${grandTotal}")
+                print()
 
                 if bad_data > 0:
                     print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
