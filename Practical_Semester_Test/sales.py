@@ -6,6 +6,10 @@ from datetime import datetime#this is for the date formating
 from decimal import Decimal#this is for the total formating
 import locale#this is for the sales formating
 
+
+
+regions = {"w": "West",  "m": "Mountain", "c": "Central", "e": "East"}
+
 '''The edd sales data function checks if valid input types are entered by the user, and if yes add the data to the csv file'''
 '''It also validates wherether if the correct quantities of the variables are entered'''
 def Add_Sales_Data(sales):
@@ -27,43 +31,22 @@ def Add_Sales_Data(sales):
             month = parsed_date.month
             day = parsed_date.day
 
-            # # year = int(input('Year:\t\t'))
-            # if year < 2000 or year > 9999:
-            #     print("The year should be between 2000 and 9999, inclusive.")
-            #     print()
-            #     continue
-            # # month = int(input('Month (1-12):\t'))
-            # if month < 1 or month > 12:
-            #     print("The month value should be between 1 and 12.")
-            #     print()
-            #     continue
-            # # day = int(input('Day (1-31):\t'))
-            # print()
-            # if day >= 1 and day <= 31:
-            #     if (month == 4 or month == 6 or month == 9 or month == 11) and day >= 31:
-            #         print("The maximum day for month 4, 6, 9 and 11 is 30.")
-            #         print()
-            #         continue
-            #     elif month == 2 and day >= 29:
-            #         print("The maximum day for month 2 is 28.")
-            #         print()
-            #         continue
-            # else:
-            #     print("The days should be between 1 and 31, inclusive.")
-            #     print()
-            #     continue
         except ValueError:
             print("Date must be a valid 'yyyy-mm-dd' format.\n")
             continue
         else:
             region = input("Region:\t")
-            sale = [year, month, day, amount]
-            sales.append(sale)
+            if region in regions:
+                sale = [date, region, amount]
+                sales.append(sale)
 
-            files.Write_Sales(sales)
+                files.Write_Sales(sales)
 
-            print(f"Sales for {year}-{month}-{day} added.")
-            print()
+                print(f"Sales for {year}-{month}-{day} added.")
+                print()
+            else:
+                print("The region you entered is invalid, please try again.\n")
+                continue
         break
 
 
@@ -76,26 +59,51 @@ def Quarter(month):
         
     return quarter
 
+def Region(region):
 
+    if region == "w":
+        region = regions["w"]
+    elif region == "m":
+        region = regions["m"]
+    elif region == "c":
+        region = regions["c"]
+    elif region == "e":
+        region = regions["e"]
+    
+    return region
+
+#this function has the code I will need to display for my import function, it was here for declutering purposes and less admin
 def View_Sales(sales):
     totalAmount = 0
-    bad_data = 0
-    print("\tDate\t\tQuarter\t\tAmount")
-    print("-------------------------------------------------")
+    grandTotal = 0
+    print("\tDate\t\tQuarter\t\tRegion\t\tAmount")
+    print("--------------------------------------------------------------------")
     for i, sale in enumerate (sales, start=1):
-        converted = float(sale[3])
-        localed = locale.format_string('%0.2f', converted) #this fucker is killing me need to come back to it at a later stage
-        quarter = Quarter(int(sale[1]))
-        print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t\t${localed}")
-        totalAmount += float(sale[3])
 
-    print("_________________________________________________")
-    number = Decimal(totalAmount)
-    rounded = number.quantize(Decimal('0.00'))
-    print(f"TOTAL:\t\t\t\t\t${rounded}")
+        converted = float(sale[2])
+        locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
+        localed = locale.format_string('%0.2f', converted, grouping=True) 
+
+        #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
+        date_str = sale[0]
+        date_object = datetime.strptime(date_str, '%Y-%m-%d')
+        month = date_object.month
+
+
+        quarter = Quarter(int(month))
+        region = Region(sale[1])
+        print(f"{i}.\t{sale[0]}\t{quarter}\t\t{region}\t\t${localed}")
+        totalAmount += float(sale[2])
+        locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
+        grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
+    
+    print("____________________________________________________________________")
+    # number = Decimal(totalAmount)
+    # rounded = number.quantize(Decimal('0.00'))
+    print(f"TOTAL:\t\t\t\t\t\t\t${grandTotal}")
     print()
 
-
+#my import couldn't import the corrupted part if the file, need to fix that
 '''It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file'''
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
@@ -119,33 +127,30 @@ def Import_Sales(sales):
             if exists(file_import):
                 files.Append_TextFile()
                 print()
-                print("\tDate\t\tQuarter\t\tAmount")
-                print("-------------------------------------------------")
+                print("\tDate\t\tQuarter\t\tRegion\t\tAmount")
+                print("--------------------------------------------------------------------")
                 for i, sale in enumerate (sales, start=1):
                     
-                    if sale[0] == "":
-                        sale[0] = '?'
+                    date_str = sale[0]
+                    date_object = datetime.strptime(date_str, '%Y-%m-%d')
+                    month = date_object.month
+
+                    if date_str == "":
+                        date_str = '?'
                     if sale[1] == "":
                         sale[1] = '?'
                     if sale[2] == "":
                         sale[2] = '?'
-                    if sale[3] == "":
-                        sale[3] = '?'
                     
-                    if sale[0] == '?' or sale[1] == '?' or sale[2] == '?' or sale[3] == '?':
-                        print(f"{i}.*\t{sale[0]}-{sale[1]}-{sale[2]}\t\t{Quarter(sale[1])}\t\t${sale[3]}")
+                    
+                    
+                    if date_str == '?' or sale[1] == '?' or sale[2] == '?':
+                        print(f"{i}.*\t{date_str}\t\t{Quarter(month)}\t\t{sale[1]}${sale[2]}")
                         Clear_File()
                         bad_data += 1
                     else: #viewsales must only have this else statement in it with the enumerate above
-                        quarter = Quarter(int(sale[1]))
-                        print(f"{i}.\t{sale[0]}-{sale[1]}-{sale[2]}\t{quarter}\t\t${sale[3]}")
-                        totalAmount += float(sale[3])
-                
-                print("_________________________________________________")
-                number = Decimal(totalAmount)
-                rounded = number.quantize(Decimal('0.00'))
-                print(f"TOTAL:\t\t\t\t\t${rounded}")
-                print()
+                        View_Sales(sales)
+
                 if bad_data > 0:
                     print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
                 break
