@@ -5,6 +5,9 @@ from os.path import exists # in this context this function is for checking if th
 from datetime import datetime#this is for the date formating
 from decimal import Decimal#this is for the total formating
 import locale#this is for the sales formating
+import re#for the regular expression that I will be using
+
+
 
 #need to make sure that my container is a list of dictionaries dictionary not a list of list
 
@@ -37,7 +40,7 @@ def Add_Sales_Data(sales):
         else:
             region = input("Region:\t")
             if region in regions:
-                sale = [date, region, amount]
+                sale = {date, region, amount}
                 sales.append(sale)
 
                 files.Write_Sales(sales)
@@ -103,10 +106,15 @@ def View_Sales(sales):
     print(f"TOTAL:\t\t\t\t\t\t\t${grandTotal}")
     print()
 
+def Format_Checker(file_import):
+    pattern = re.compile(r"^sales_qn_yyyy_r\.csv$")
+    return pattern.match(file_import)
+
 #my import couldn't import the corrupted part if the file, need to fix that
 '''It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file'''
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
+
     totalAmount = 0
     bad_data = 0
     grandTotal = 0
