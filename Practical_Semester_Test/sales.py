@@ -167,7 +167,7 @@ def Import_Sales(sales):
                     month = date_str[5:7]
 
                     converted = float(sale[2])
-                    locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
+                    locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed I used this US localing
                     localed = locale.format_string('%0.2f', converted, grouping=True)
 
                     region = Region(sale[1])
@@ -186,7 +186,7 @@ def Import_Sales(sales):
                     if date_str[:4] == nuyear or "q"+ str(Quarter(month)) == nuquarter or sale[1] == nuregion:
                     #align the contents to the left the last column
                         if date_str == '?' or sale[1] == '?' or sale[2] == '?':
-                            print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{'$' + localed :>15}")
+                            print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
 
                             totalAmount += float(sale[2])
                             locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
@@ -209,13 +209,13 @@ def Import_Sales(sales):
                             
                             print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{'$' + localed :>15}")
                             totalAmount += float(sale[2])
-                            locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
+                            locale.setlocale(locale.LC_ALL, '') #for my numners to be localed I used this US localing
                             grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
                     
                         
                 
                 print("____________________________________________________________________")
-                print(f"TOTAL:{'' :<51}${grandTotal}")
+                print(f"TOTAL:{'' :<52}{locale.currency(totalAmount, symbol=True, grouping=True)}")
                 print()
 
                 if bad_data > 0:
