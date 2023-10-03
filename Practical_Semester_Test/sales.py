@@ -6,6 +6,7 @@ from datetime import datetime#this is for the date formating
 from decimal import Decimal#this is for the total formating
 import locale#this is for the sales formating
 import re#for the regular expression that I will be using
+import os
 
 
 
@@ -40,7 +41,7 @@ def Add_Sales_Data(sales):
         else:
             region = input("Region:\t")
             if region in regions:
-                sale = {date, region, amount}
+                sale = {"d":date, "r":region, "a":amount}
                 sales.append(sale)
 
                 files.Write_Sales(sales)
@@ -79,7 +80,7 @@ def Region(region):
 def View_Sales(sales):
     totalAmount = 0
     grandTotal = 0
-    print("\tDate\t\tQuarter\t\tRegion\t\tAmount")
+    print(f"{'':<8}{'Date' :<15}{'Quarter' :<15}{'Region' :<15}{'Amount' :>15}")
     print("--------------------------------------------------------------------")
     for i, sale in enumerate (sales, start=1):
 
@@ -95,7 +96,7 @@ def View_Sales(sales):
 
         quarter = Quarter(int(month))
         region = Region(sale[1])
-        print(f"{i}.\t{sale[0]}\t{quarter}\t\t{region}\t\t${localed}")
+        print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{'$' + localed :>15}")
         totalAmount += float(sale[2])
         locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
         grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
@@ -103,17 +104,62 @@ def View_Sales(sales):
     print("____________________________________________________________________")
     # number = Decimal(totalAmount)
     # rounded = number.quantize(Decimal('0.00'))
-    print(f"TOTAL:\t\t\t\t\t\t\t${grandTotal}")
+    print(f"TOTAL:{'' :<51}${grandTotal}")
     print()
 
 def Format_Checker(file_import):
-    pattern = re.compile(r"^sales_qn_yyyy_r\.csv$")
+    pattern = re.compile(r"^sales_q\d_\d{4}_[a-zA-Z]+\.csv$")
     return pattern.match(file_import)
 
 #my import couldn't import the corrupted part if the file, need to fix that
 '''It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file'''
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
+    
+
+    # if file_import.startswith("sales_q") and file_import.endswith(".csv"):
+    #     try:
+
+    #         split_file = file_import.split('_')
+
+    #         nuQuarter = int(split_file[0][-1])
+    #         nuYear = int(split_file[1][1:])
+    #         nuRegion = split_file[2][0:-4]
+            
+
+    #         for i, value in enumerate(sales, start=1):
+    #             date = value[0]
+    #             # date_object = datetime.strptime(date_str, '%Y-%m-%d')
+    #             nuMonth = int(date[5:6])
+    #             calcYear = int(date[0:3])
+
+    #             calcQuarter = Quarter(nuMonth)
+
+    #             if nuQuarter == calcQuarter and nuYear == calcYear and nuRegion == value[1]:
+    #                 print(f"{i}.{'':<6}{value[0] :<15}{nuQuarter :<15}{nuRegion :<15}{'$' + value[2] :>15}")
+
+    #     except Exception as e:
+    #         print(f"{e}")
+
+    
+    
+    if Format_Checker(file_import):
+        print("You matched the regex")
+
+        split_file = file_import.split('_')
+        nuquarter = split_file[1][-1]
+        nuyear = split_file[2]
+        nuregion = split_file[3]
+
+
+
+        if len(split_file) == 4 and split_file[0] == "sales":
+            for i, value in enumerate(sales, start=1):
+                if nuyear == value[0:3] and nuregion == value[1]:
+                    print("I have found the data")
+                
+    else:
+        print("It does not match the regex")
 
     totalAmount = 0
     bad_data = 0
@@ -136,7 +182,8 @@ def Import_Sales(sales):
             if exists(file_import):
                 files.Append_TextFile()
                 print()
-                print("\tDate\t\tQuarter\t\tRegion\t\t\tAmount")
+                print(f"{'':<8}{'Date' :<15}{'Quarter' :<15}{'Region' :<15}{'Amount' :>15}")
+                # print("\tDate\t\tQuarter\t\tRegion\t\t\tAmount")
                 print("--------------------------------------------------------------------")
                 for i, sale in enumerate (sales, start=1):
                     
@@ -158,12 +205,10 @@ def Import_Sales(sales):
                         sale[1] = '?'
                     if sale[2] == "":
                         sale[2] = '?'
-                    
-                    formater = "{:<4}"
 
                     #align the contents to the left the last column
                     if date_str == '?' or sale[1] == '?' or sale[2] == '?':
-                        print(f"{i}.*\t{date_str}\t\t{Quarter(month)}\t\t{region}\t\t${formater.format(localed)}")
+                        print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{'$' + localed :>15}")
 
                         totalAmount += float(sale[2])
                         locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
@@ -184,13 +229,13 @@ def Import_Sales(sales):
 
                         quarter = Quarter(int(month))
                         
-                        print(f"{i}.\t{sale[0]}\t{quarter}\t\t{region}\t\t${formater.format(localed)}")
+                        print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{'$' + localed :>15}")
                         totalAmount += float(sale[2])
                         locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
                         grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
                 
                 print("____________________________________________________________________")
-                print(f"TOTAL:\t\t\t\t\t\t\t${grandTotal}")
+                print(f"TOTAL:{'' :<51}${grandTotal}")
                 print()
 
                 if bad_data > 0:
