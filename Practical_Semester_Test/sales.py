@@ -42,8 +42,12 @@ def Add_Sales_Data(sales):
             region = input("Region:\t")
             if region in regions:
                 sale = {"d":date, "r":region, "a":amount}
-                sales.append(sale)
+                
+                sale_list = list(sale.values())
 
+                sales.append(sale_list)
+                
+                #change sales back to a list to write to a file
                 files.Write_Sales(sales)
 
                 print(f"Sales for {year}-{month}-{day} added.")
@@ -115,71 +119,42 @@ def Format_Checker(file_import):
 '''It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file'''
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
-    
 
-    # if file_import.startswith("sales_q") and file_import.endswith(".csv"):
-    #     try:
+    try:
+        split_file = file_import.split('_')#spliting the file bythe underscore
 
-    #         split_file = file_import.split('_')
-
-    #         nuQuarter = int(split_file[0][-1])
-    #         nuYear = int(split_file[1][1:])
-    #         nuRegion = split_file[2][0:-4]
-            
-
-    #         for i, value in enumerate(sales, start=1):
-    #             date = value[0]
-    #             # date_object = datetime.strptime(date_str, '%Y-%m-%d')
-    #             nuMonth = int(date[5:6])
-    #             calcYear = int(date[0:3])
-
-    #             calcQuarter = Quarter(nuMonth)
-
-    #             if nuQuarter == calcQuarter and nuYear == calcYear and nuRegion == value[1]:
-    #                 print(f"{i}.{'':<6}{value[0] :<15}{nuQuarter :<15}{nuRegion :<15}{'$' + value[2] :>15}")
-
-    #     except Exception as e:
-    #         print(f"{e}")
-
-    
-    
-    if Format_Checker(file_import):
-        print("You matched the regex")
-
-        split_file = file_import.split('_')
-        nuquarter = split_file[1][-1]
+        #declaring the variables on the splitted file
+        nuquarter = split_file[1]
         nuyear = split_file[2]
-        nuregion = split_file[3]
+        lastsection = split_file[3]
+
+        #spliting the last section r.csv into extention and region so that I can be able to access the both individually
+        lastsection_split = lastsection.split(".")
+        nuregion = lastsection_split[0]
+        extention = lastsection_split[1]
+
+        # default_csvName = str(split_file[0] + '.' + extention)
 
 
+        totalAmount = 0
+        bad_data = 0
+        grandTotal = 0
 
-        if len(split_file) == 4 and split_file[0] == "sales":
-            for i, value in enumerate(sales, start=1):
-                if nuyear == value[0:3] and nuregion == value[1]:
-                    print("I have found the data")
+
+        '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
+        with open('imported_files.txt', 'r') as f:
+            imported_files = f.readlines()
+
+        '''This is the while loop that checks the textfile'''
+        while True:
+            if files.FILE+ '\n' in imported_files:
+                print('This file has already been imported. Please clear the imported files and import once more.')
+                print()
+                break
+            else:
                 
-    else:
-        print("It does not match the regex")
-
-    totalAmount = 0
-    bad_data = 0
-    grandTotal = 0
-
-
-    '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
-    with open('imported_files.txt', 'r') as f:
-        imported_files = f.readlines()
-
-    '''This is the while loop that checks the textfile'''
-    while True:
-        if files.FILE+ '\n' in imported_files:
-            print('This file has already been imported. Please clear the imported files and import once more.')
-            print()
-            break
-        else:
-            
-            '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
-            if exists(file_import):
+                '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
+                # if exists(file_import):
                 files.Append_TextFile()
                 print()
                 print(f"{'':<8}{'Date' :<15}{'Quarter' :<15}{'Region' :<15}{'Amount' :>15}")
@@ -189,14 +164,15 @@ def Import_Sales(sales):
                     
                     date_str = sale[0]
                     # date_object = datetime.strptime(date_str, '%Y-%m-%d')
-                    month = date_str[5:6]
+                    month = date_str[5:7]
 
                     converted = float(sale[2])
                     locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
                     localed = locale.format_string('%0.2f', converted, grouping=True)
 
                     region = Region(sale[1])
-
+                    
+                    #do I need this?
                     if month == "":
                         month = '?'
                     if sale[0] == "":
@@ -206,33 +182,37 @@ def Import_Sales(sales):
                     if sale[2] == "":
                         sale[2] = '?'
 
+                    
+                    if date_str[:4] == nuyear or "q"+ str(Quarter(month)) == nuquarter or sale[1] == nuregion:
                     #align the contents to the left the last column
-                    if date_str == '?' or sale[1] == '?' or sale[2] == '?':
-                        print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{'$' + localed :>15}")
+                        if date_str == '?' or sale[1] == '?' or sale[2] == '?':
+                            print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{'$' + localed :>15}")
 
-                        totalAmount += float(sale[2])
-                        locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
-                        grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
+                            totalAmount += float(sale[2])
+                            locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
+                            grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
 
-                        Clear_File()
-                        bad_data += 1
-                    else: #viewsales must only have this else statement in it with the enumerate above
-                        # converted = float(sale[2])
-                        # locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
-                        # localed = locale.format_string('%0.2f', converted, grouping=True) 
+                            Clear_File()
+                            bad_data += 1
+                        else: #viewsales must only have this else statement in it with the enumerate above
+                            # converted = float(sale[2])
+                            # locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
+                            # localed = locale.format_string('%0.2f', converted, grouping=True) 
 
-                        #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
-                        date_str = sale[0]
-                        date_object = datetime.strptime(date_str, '%Y-%m-%d')
-                        month = date_object.month
+                            #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
+                            date_str = sale[0]
+                            date_object = datetime.strptime(date_str, '%Y-%m-%d')
+                            month = date_object.month
 
 
-                        quarter = Quarter(int(month))
+                            quarter = Quarter(int(month))
+                            
+                            print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{'$' + localed :>15}")
+                            totalAmount += float(sale[2])
+                            locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
+                            grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
+                    
                         
-                        print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{'$' + localed :>15}")
-                        totalAmount += float(sale[2])
-                        locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
-                        grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
                 
                 print("____________________________________________________________________")
                 print(f"TOTAL:{'' :<51}${grandTotal}")
@@ -241,10 +221,12 @@ def Import_Sales(sales):
                 if bad_data > 0:
                     print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
                 break
-            else:
-                print("The file you are trying to import does not exist.")
-                print()
-                break
+                # else:
+                #     print("The file you are trying to import does not exist.")
+                #     print()
+                #     break
+    except Exception:
+        print("\nThe format you entered is not supported for importing \nUse this format 'sales_qn_yyyy_r.csv'\n")
 
 
 '''Function for clearing the textfile'''
