@@ -89,7 +89,7 @@ def View_Sales(sales):
     for i, sale in enumerate (sales, start=1):
 
         converted = float(sale[2])
-        locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
+        locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed I used this US localing
         localed = locale.format_string('%0.2f', converted, grouping=True) 
 
         #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
@@ -100,15 +100,15 @@ def View_Sales(sales):
 
         quarter = Quarter(int(month))
         region = Region(sale[1])
-        print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{'$' + localed :>15}")
+        print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
         totalAmount += float(sale[2])
-        locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
+        locale.setlocale(locale.LC_ALL, '') #for my numners to be localed I used this US localing
         grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
     
     print("____________________________________________________________________")
     # number = Decimal(totalAmount)
     # rounded = number.quantize(Decimal('0.00'))
-    print(f"TOTAL:{'' :<51}${grandTotal}")
+    print(f"TOTAL:{'' :<52}{locale.currency(totalAmount, symbol=True, grouping=True)}")
     print()
 
 def Format_Checker(file_import):
