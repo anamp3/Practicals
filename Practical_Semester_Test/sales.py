@@ -80,7 +80,7 @@ def Region(region):
     
     return region
 
-#this function has the code I will need to display for my import function, it was here for declutering purposes and less admin
+
 def View_Sales(sales):
     totalAmount = 0
     grandTotal = 0
@@ -89,7 +89,7 @@ def View_Sales(sales):
     for i, sale in enumerate (sales, start=1):
 
         converted = float(sale[2])
-        locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed I used this US localing
+        locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed 
         localed = locale.format_string('%0.2f', converted, grouping=True) 
 
         #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
@@ -100,22 +100,23 @@ def View_Sales(sales):
 
         quarter = Quarter(int(month))
         region = Region(sale[1])
-        print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
+        newconv = Decimal(converted)
+        decimaled = newconv.quantize(Decimal('0.00'))
+        print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{locale.currency(decimaled, symbol=True, grouping=True) :>15}")
         totalAmount += float(sale[2])
-        locale.setlocale(locale.LC_ALL, '') #for my numners to be localed I used this US localing
-        grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
+        locale.setlocale(locale.LC_ALL, '') #for my numners to be localed
     
     print("____________________________________________________________________")
-    # number = Decimal(totalAmount)
-    # rounded = number.quantize(Decimal('0.00'))
-    print(f"TOTAL:{'' :<52}{locale.currency(totalAmount, symbol=True, grouping=True)}")
+    number = Decimal(totalAmount)
+    rounded = number.quantize(Decimal('0.00'))
+    print(f"TOTAL:{'' :<52}{locale.currency(rounded, symbol=True, grouping=True)}")
     print()
 
 def Format_Checker(file_import):
     pattern = re.compile(r"^sales_q\d_\d{4}_[a-zA-Z]+\.csv$")
     return pattern.match(file_import)
 
-#my import couldn't import the corrupted part if the file, need to fix that
+
 '''It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file'''
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
@@ -131,14 +132,10 @@ def Import_Sales(sales):
         #spliting the last section r.csv into extention and region so that I can be able to access the both individually
         lastsection_split = lastsection.split(".")
         nuregion = lastsection_split[0]
-        extention = lastsection_split[1]
-
-        # default_csvName = str(split_file[0] + '.' + extention)
 
 
         totalAmount = 0
         bad_data = 0
-        grandTotal = 0
 
 
         '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
@@ -154,25 +151,21 @@ def Import_Sales(sales):
             else:
                 
                 '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
-                # if exists(file_import):
                 files.Append_TextFile()
                 print()
                 print(f"{'':<8}{'Date' :<15}{'Quarter' :<15}{'Region' :<15}{'Amount' :>15}")
-                # print("\tDate\t\tQuarter\t\tRegion\t\t\tAmount")
                 print("--------------------------------------------------------------------")
                 for i, sale in enumerate (sales, start=1):
                     
                     date_str = sale[0]
-                    # date_object = datetime.strptime(date_str, '%Y-%m-%d')
                     month = date_str[5:7]
 
                     converted = float(sale[2])
-                    locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed I used this US localing
+                    locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed
                     localed = locale.format_string('%0.2f', converted, grouping=True)
 
                     region = Region(sale[1])
                     
-                    #do I need this?
                     if month == "":
                         month = '?'
                     if sale[0] == "":
@@ -182,23 +175,21 @@ def Import_Sales(sales):
                     if sale[2] == "":
                         sale[2] = '?'
 
-                    
-                    if date_str[:4] == nuyear or "q"+ str(Quarter(month)) == nuquarter or sale[1] == nuregion:
-                    #align the contents to the left the last column
+
+                    if nuyear == date_str[:4] and nuquarter == "q"+ str(Quarter(month)) and nuregion == sale[1]:
+
                         if date_str == '?' or sale[1] == '?' or sale[2] == '?':
                             print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
 
                             totalAmount += float(sale[2])
-                            locale.setlocale(locale.LC_ALL, 'en_us') #for my numners to be localed I used this US localing
+                            locale.setlocale(locale.LC_ALL, '') #for my numners to be localed I used this US localing
                             grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
 
                             Clear_File()
                             bad_data += 1
-                        else: #viewsales must only have this else statement in it with the enumerate above
-                            # converted = float(sale[2])
-                            # locale.setlocale(locale.LC_ALL, 'en_us') #for my numbers to be localed I used this US localing
-                            # localed = locale.format_string('%0.2f', converted, grouping=True) 
 
+                        else: #viewsales must only have this else statement in it with the enumerate above
+                           
                             #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
                             date_str = sale[0]
                             date_object = datetime.strptime(date_str, '%Y-%m-%d')
@@ -207,13 +198,11 @@ def Import_Sales(sales):
 
                             quarter = Quarter(int(month))
                             
-                            print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{'$' + localed :>15}")
+                            print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
                             totalAmount += float(sale[2])
-                            locale.setlocale(locale.LC_ALL, '') #for my numners to be localed I used this US localing
-                            grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
-                    
+                            locale.setlocale(locale.LC_ALL, '') #for my numners to be localed
                         
-                
+             
                 print("____________________________________________________________________")
                 print(f"TOTAL:{'' :<52}{locale.currency(totalAmount, symbol=True, grouping=True)}")
                 print()
@@ -221,10 +210,7 @@ def Import_Sales(sales):
                 if bad_data > 0:
                     print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
                 break
-                # else:
-                #     print("The file you are trying to import does not exist.")
-                #     print()
-                #     break
+
     except Exception:
         print("\nThe format you entered is not supported for importing \nUse this format 'sales_qn_yyyy_r.csv'\n")
 
