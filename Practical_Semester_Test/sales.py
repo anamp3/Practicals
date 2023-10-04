@@ -178,8 +178,11 @@ def Import_Sales(sales):
 
                     if nuyear == date_str[:4] and nuquarter == "q"+ str(Quarter(month)) and nuregion == sale[1]:
 
-                        if date_str == '?' or sale[1] == '?' or sale[2] == '?':
-                            print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
+                        if date_str == '?' or sale[1] == '?' or sale[2] == '?':   
+                            if sale[2] == '?':
+                                 print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{'*' :>15}")
+                            else:
+                                print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
 
                             totalAmount += float(sale[2])
                             locale.setlocale(locale.LC_ALL, '') #for my numners to be localed I used this US localing
@@ -211,8 +214,8 @@ def Import_Sales(sales):
                     print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
                 break
 
-    except Exception:
-        print("\nThe format you entered is not supported for importing \nUse this format 'sales_qn_yyyy_r.csv'\n")
+    except Exception as e:
+        print(f"{e}")
 
 
 '''Function for clearing the textfile'''
