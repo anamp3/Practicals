@@ -121,82 +121,83 @@ def Format_Checker(file_import):
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
 
-    try:
-        split_file = file_import.split('_')#spliting the file bythe underscore
+    # try:
+    split_file = file_import.split('_')#spliting the file bythe underscore
 
-        #declaring the variables on the splitted file
-        nuquarter = split_file[1]
-        nuyear = split_file[2]
-        lastsection = split_file[3]
+    #declaring the variables on the splitted file
+    nuquarter = split_file[1]
+    nuyear = split_file[2]
+    lastsection = split_file[3]
 
-        #spliting the last section r.csv into extention and region so that I can be able to access the both individually
-        lastsection_split = lastsection.split(".")
-        nuregion = lastsection_split[0]
-
-
-        totalAmount = 0
-        bad_data = 0
+    #spliting the last section r.csv into extention and region so that I can be able to access the both individually
+    lastsection_split = lastsection.split(".")
+    nuregion = lastsection_split[0]
 
 
-        '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
-        with open('imported_files.txt', 'r') as f:
-            imported_files = f.readlines()
+    totalAmount = 0
+    bad_data = 0
 
-        '''This is the while loop that checks the textfile'''
-        while True:
-            if files.FILE+ '\n' in imported_files:
-                print('This file has already been imported. Please clear the imported files and import once more.')
-                print()
-                break
-            else:
+
+    '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
+    with open('imported_files.txt', 'r') as f:
+        imported_files = f.readlines()
+
+    '''This is the while loop that checks the textfile'''
+    while True:
+        if files.FILE+ '\n' in imported_files:
+            print('This file has already been imported. Please clear the imported files and import once more.')
+            print()
+            break
+        else:
+            
+            '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
+            files.Append_TextFile()
+            print()
+            print(f"{'':<8}{'Date' :<15}{'Quarter' :<15}{'Region' :<15}{'Amount' :>15}")
+            print("--------------------------------------------------------------------")
+            for i, sale in enumerate (sales, start=1):
                 
-                '''If the file that the user wants exists, it will execute the code below. If not an appropriate message will be displayed.'''
-                files.Append_TextFile()
-                print()
-                print(f"{'':<8}{'Date' :<15}{'Quarter' :<15}{'Region' :<15}{'Amount' :>15}")
-                print("--------------------------------------------------------------------")
-                for i, sale in enumerate (sales, start=1):
-                    
-                    date_str = sale[0]
-                    month = date_str[5:7]
+                date_str = sale[0]
+                month = date_str[5:7]
 
-                    converted = float(sale[2])
-                    locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed
-                    localed = locale.format_string('%0.2f', converted, grouping=True)
+            
+                region = Region(sale[1])
+                
+                if month == "":
+                    month = '?'
+                if sale[0] == "":
+                    date_str = '?'
+                if sale[1] == "":
+                    sale[1] = '?'
+                if sale[2] == "":
+                    sale[2] = '?'
 
-                    region = Region(sale[1])
-                    
-                    if month == "":
-                        month = '?'
-                    if sale[0] == "":
-                        date_str = '?'
-                    if sale[1] == "":
-                        sale[1] = '?'
-                    if sale[2] == "":
-                        sale[2] = '?'
+                try:
+                    if (nuyear == date_str[:4] and nuquarter == "q"+ str(Quarter(month)) and nuregion == sale[1]):
 
-
-                    if nuyear == date_str[:4] and nuquarter == "q"+ str(Quarter(month)) and nuregion == sale[1]:
-
-                        if date_str == '?' or sale[1] == '?' or sale[2] == '?':   
-                            if sale[2] == '?':
-                                 print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{'*' :>15}")
-                            else:
+                        if date_str == '?' or sale[1] == '?' or sale[2] == '?': 
+                            if sale[2] != '?':
+                                converted = float(sale[2])
+                                totalAmount += float(sale[2])
+                                locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed
+                                localed = locale.format_string('%0.2f', converted, grouping=True)
                                 print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
-
-                            totalAmount += float(sale[2])
-                            locale.setlocale(locale.LC_ALL, '') #for my numners to be localed I used this US localing
-                            grandTotal = locale.format_string('%0.2f', totalAmount, grouping=True)
+                            else:                                            
+                                print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{sale[2] :>15}")
 
                             Clear_File()
                             bad_data += 1
 
                         else: #viewsales must only have this else statement in it with the enumerate above
-                           
+                        
                             #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
                             date_str = sale[0]
                             date_object = datetime.strptime(date_str, '%Y-%m-%d')
                             month = date_object.month
+
+                            converted = float(sale[2])
+                            locale.setlocale(locale.LC_ALL, '') #for my numbers to be localed
+                            localed = locale.format_string('%0.2f', converted, grouping=True)
 
 
                             quarter = Quarter(int(month))
@@ -204,18 +205,20 @@ def Import_Sales(sales):
                             print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{locale.currency(converted, symbol=True, grouping=True) :>15}")
                             totalAmount += float(sale[2])
                             locale.setlocale(locale.LC_ALL, '') #for my numners to be localed
-                        
-             
-                print("____________________________________________________________________")
-                print(f"TOTAL:{'' :<52}{locale.currency(totalAmount, symbol=True, grouping=True)}")
-                print()
+                except TypeError:
+                    print(f"{i}.*{'':<5}{date_str :<15}{Quarter(month) :<15}{region :<15}{sale[2] :>15}")
+                    
+            
+            print("____________________________________________________________________")
+            print(f"TOTAL:{'' :<52}{locale.currency(totalAmount, symbol=True, grouping=True)}")
+            print()
 
-                if bad_data > 0:
-                    print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
-                break
+            if bad_data > 0:
+                print(f"File '{file_import}' contains bad data.\nPlease correct the data in the file and try again.\n")
+            break
 
-    except Exception as e:
-        print(f"{e}")
+    # except Exception as e:
+    #     print(f"{e}")
 
 
 '''Function for clearing the textfile'''
