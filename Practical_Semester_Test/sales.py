@@ -7,6 +7,9 @@ from decimal import Decimal#this is for the total formating
 import locale#this is for the sales formating
 import re#for the regular expression that I will be using
 import os
+import inteface
+from classes import Regions, DailySales, SalesList,File, FileImportError, DATE_FORMAT
+
 
 
 
@@ -14,6 +17,12 @@ import os
 
 regions = {"w": "West",  "m": "Mountain", "c": "Central", "e": "East"}
 
+regions_class = Regions()
+regions_class.regional_list
+regions_class.createRegion('w', 'West')
+regions_class.createRegion('e', 'East')
+regions_class.createRegion('m', 'Mountain')
+regions_class.createRegion('c', 'Central')
 '''The edd sales data function checks if valid input types are entered by the user, and if yes add the data to the csv file'''
 '''It also validates wherether if the correct quantities of the variables are entered'''
 def Add_Sales_Data(sales):
@@ -27,10 +36,9 @@ def Add_Sales_Data(sales):
 
         try:
 
-            format = "%Y-%m-%d"
             date = input("Date (yyyy-mm-dd): ")
 
-            parsed_date = datetime.strptime(date, format)
+            parsed_date = datetime.strptime(date, DATE_FORMAT)
             year = parsed_date.year
             month = parsed_date.month
             day = parsed_date.day
@@ -40,21 +48,21 @@ def Add_Sales_Data(sales):
             continue
         else:
             region = input("Region:\t")
+            particular_region = regions_class.validRegionCodes()
             if region in regions:
                 sale = {"d":date, "r":region, "a":amount}
                 
                 sale_list = list(sale.values())
 
                 sales.append(sale_list)
-                
+            
                 #change sales back to a list to write to a file
                 files.Write_Sales(sales)
 
-                print(f"Sales for {year}-{month}-{day} added.")
-                print()
+                print(f"Sales for {year}-{month}-{day}  added.")
             else:
-                print("The region you entered is invalid, please try again.\n")
-                continue
+               print("The region you entered is invalid, please try again.\n")
+            continue
         break
 
 
@@ -66,19 +74,6 @@ def Quarter(month):
         quarter = (int(month) - 1) // 3 + 1
         
     return quarter
-
-def Region(region):
-
-    if region == "w":
-        region = regions["w"]
-    elif region == "m":
-        region = regions["m"]
-    elif region == "c":
-        region = regions["c"]
-    elif region == "e":
-        region = regions["e"]
-    
-    return region
 
 
 def View_Sales(sales):
@@ -94,12 +89,13 @@ def View_Sales(sales):
 
         #this is for getting the whole date and changing it into a date supported by python so I culd access individual variables of it
         date_str = sale[0]
-        date_object = datetime.strptime(date_str, '%Y-%m-%d')
-        month = date_object.month
+        # date_object = datetime.strptime(date_str, '%Y-%m-%d')
+        # month = date_object.month
+        month = int(date_str[5:7])
 
 
         quarter = Quarter(int(month))
-        region = Region(sale[1])
+        region = inteface.regions.findRegionCode(sale[1])
         newconv = Decimal(converted)
         decimaled = newconv.quantize(Decimal('0.00'))
         print(f"{i}.{'':<6}{sale[0] :<15}{quarter :<15}{region :<15}{locale.currency(decimaled, symbol=True, grouping=True) :>15}")
@@ -120,6 +116,7 @@ def Format_Checker(file_import):
 '''It saves to the textfile but doesn't when there's bad data, and when the user selects exit it clears the text file'''
 def Import_Sales(sales):
     file_import = input("Enter file name to import: ")
+    files.import_file(file_import,'sales.csv')
 
     # try:
     split_file = file_import.split('_')#spliting the file bythe underscore
@@ -139,11 +136,12 @@ def Import_Sales(sales):
 
 
     '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
-    
+    with open('imported_files.txt', 'r') as f:
+        imported_files = f.readlines()
 
     '''This is the while loop that checks the textfile'''
     while True:
-        if files.FILE+ '\n' in files.imported_files:
+        if files.FILE+ '\n' in imported_files:
             print('This file has already been imported. Please clear the imported files and import once more.')
             print()
             break
@@ -160,7 +158,7 @@ def Import_Sales(sales):
                 month = date_str[5:7]
 
             
-                region = Region(sale[1])
+                region = inteface.regions.findRegionCode(sale[1]) #region from the interface module
                 
                 if month == "":
                     month = '?'
@@ -226,45 +224,4 @@ def Clear_File():
         f.truncate()       
 
 
-#maybe in the future store this in a separate module
-def Command_Menu():
-    print("SALES DATA IMPORTER")
-    print()
-    print("COMMAND MENU")
-    print("view\t- View all sales.")
-    print("add\t- Add sales.")
-    print("import\t- Import sales from file.")
-    print("menu\t- Show menu.")
-    print("clear\t- Clear imported files.")
-    print("exit\t- Exit program.")
-    print()
 
-def main():
-    Clear_File()
-    Command_Menu()
-    sales = files.Read_Sales()
-    while True:
-        command = input("Please enter a command: ")
-        if command.lower() == "import":
-            Import_Sales(sales)
-        elif command.lower() == "add":
-            Add_Sales_Data(sales)
-        elif command.lower() == "view":
-            View_Sales(sales)
-        elif command.lower() == "menu":
-            Command_Menu()
-            continue
-        elif command.lower() == "exit":
-            Clear_File()#This clears the text file when the user exits the application 
-            break
-        elif command.lower() == "clear":
-            Clear_File()#This clears the text file
-            print("Imported files cleared succefully!\n")
-            continue
-        else:
-            print("The command you entered is invalid.")
-            print()
-            continue
-    print("Bye!")
-if __name__ == "__main__":
-    main()

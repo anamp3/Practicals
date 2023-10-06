@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from datetime import datetime#this is for the date formating
+from datetime import datetime
+import re#this is for the date formating
 
 DATE_FORMAT = '%Y-%m-%d'
 
@@ -14,19 +15,22 @@ class Regions:
         self.regional_list = []
 
     def findRegionCode(self, code):
-        for region in self.regional_list:
-            if region.code == code:
-                return region
-        return None
+        for i, region in enumerate(self.regional_list):
+            if code in region:
+                name = self.regional_list[i][1]
+                return name
+        return '?'
     
     #become re-usable along the code
     def validRegionCodes(self):
-        regionCodes = [region.code for region in self.regional_list]
+        regionCodes = []
+        for region in self.regional_list:
+            regionCodes.append(region)
         return regionCodes
     
     # this will add to the regonal list a region object
-    def createRegion(self, region):
-        self.regional_list.append(region)
+    def createRegion(self, code, region):
+        self.regional_list.append([code, region])
 
     def __str__(self):
         output = "| ".join(self.validRegionCodes())
@@ -65,6 +69,12 @@ class File:
 
     @property
     def namingConvention(self):
+        pattern = re.compile(r"^sales_q\d_\d{4}_[a-zA-Z]+\.csv$")
+        if pattern.match(self.fileName):
+            print(f"{self.fileName} is valid.")
+        else:
+            print(f"{self.fileName} is not valid.")
+
         return self.name_conv #this will return an expected naming convention which will be 'sales_qn_yyy_r.csv' in this case.
 
 
@@ -90,7 +100,7 @@ class DailySales:
         return quarter
     
     def checkValidity(self):
-        if (isinstance(self.amount, float) and isinstance(self.date, datetime) and 
+        if (isinstance(self.amount, float) and isinstance(self.date, str) and 
             isinstance(self.region, str) and self.quarter >= 1 and self.quarter <= 4):
 
             return True

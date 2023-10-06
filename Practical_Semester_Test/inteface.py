@@ -1,7 +1,7 @@
 import datetime
 import classes
 from classes import Regions, Region, DailySales, SalesList,File, FileImportError, DATE_FORMAT
-import files
+import files, sales
 
 def Command_Menu():
     print("SALES DATA IMPORTER")
@@ -15,6 +15,15 @@ def Command_Menu():
     print("exit\t- Exit program.")
     print()
 
+
+#Regions object with Region objects in it
+regions = Regions()
+regions.regional_list
+regions.createRegion('w', 'West')
+regions.createRegion('e', 'East')
+regions.createRegion('m', 'Mountain')
+regions.createRegion('c', 'Central')
+
 def Clear_File():
     with open('imported_files.txt', 'r+') as f:
         f.truncate()
@@ -24,53 +33,20 @@ def main():
     Command_Menu()
 
     while True:
+        # print(regions.regional_list)
+        sale = files.Read_Sales()
         command = input("Please enter a command: ")
         if command.lower() == "import":
-            
-            file_import = input("Enter file name to import: ")
-            split_file = file_import.split('_')#spliting the file bythe underscore
-
-            #declaring the variables on the splitted file
-            # lastsection = split_file[3]
-
-            # #spliting the last section r.csv into extention and region so that I can be able to access the both individually
-            # lastsection_split = lastsection.split(".")
-            # fileName = split_file[0] +'.'+ lastsection_split[1]
-
-            #Region objects
-            west = Region('w', 'West')
-            east = Region('e', 'East')
-            mountain = Region('m', 'Mountain')
-            central = Region('c', 'Central')
-
-            #Regions object with Region objects in it
-            regions = Regions()
-            regions.regional_list
-            regions.createRegion(west)
-            regions.createRegion(east)
-            regions.createRegion(mountain)
-            regions.createRegion(central)
-            
-            
-
-
-            file = File(file_import, regions, 'sales_qn_yyyy_r.csv')
-            file.filenameValidity()
+            sales.Import_Sales(sale)
 
             
-        # elif command.lower() == "add":
+        elif command.lower() == "add":
+            sales.Add_Sales_Data(sale)
 
 
             
         elif command.lower() == "view":
-            date = ''
-            region = ''
-            amount = 0
-            quarter = 0
-            daily = DailySales(date, region, amount, quarter)
-
-            value = daily.convRowofFile(files.FILE)
-            print (value)
+            sales.View_Sales(sale)
 
 
             

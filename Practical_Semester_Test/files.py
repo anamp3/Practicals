@@ -8,8 +8,7 @@ def Append_TextFile():
     with open('imported_files.txt', 'w') as file:
         file.write(FILE+ '\n')
 
-with open('imported_files.txt', 'r') as f:
-    imported_files = f.readlines()
+
 
 '''This is the input that will be from the user'''
 def Write_Sales(sales):
@@ -30,12 +29,8 @@ def import_file(fileName, imported_file):
     if fileName in imported_file:
         raise FileImportError(f"The file '{fileName}' has already been imported.")
     
-    # if not re.match(r"^sales_q\d_\d{4}_[a-zA-Z]+\.csv$", fileName):
-    #     raise FileImportError(f"The file '{fileName}' has invalid format.")
-    
-    region = fileName[1]
-    if not(Regions.validRegionCodes(region)):
-        raise FileImportError("Invalid regional code.")
+    if not re.match(r"^sales_q\d_\d{4}_[a-zA-Z]+\.csv$", fileName):
+        raise FileImportError(f"The file '{fileName}' has invalid format.")
     
     try:
         Read_Sales()
