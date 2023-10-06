@@ -1,4 +1,6 @@
 import csv
+import re
+from classes import FileImportError,Regions
 
 FILE = "sales.csv"
 
@@ -6,19 +8,8 @@ def Append_TextFile():
     with open('imported_files.txt', 'w') as file:
         file.write(FILE+ '\n')
 
-
-#used this function on the sales module hence the commenting out of it
-# def Read_TextFile():
-#     with open('imported_files.txt', 'r') as f:
-#         imported_files = f.readlines()
-
-#     while True:
-#         if FILE+ '\n' in imported_files:
-#             print('This file has already been imported.')
-#             break
-#         else:
-#             break
-
+with open('imported_files.txt', 'r') as f:
+    imported_files = f.readlines()
 
 '''This is the input that will be from the user'''
 def Write_Sales(sales):
@@ -33,3 +24,21 @@ def Read_Sales():
         for line in read: 
             sales.append(line)
     return sales
+
+def import_file(fileName, imported_file):
+    
+    if fileName in imported_file:
+        raise FileImportError(f"The file '{fileName}' has already been imported.")
+    
+    # if not re.match(r"^sales_q\d_\d{4}_[a-zA-Z]+\.csv$", fileName):
+    #     raise FileImportError(f"The file '{fileName}' has invalid format.")
+    
+    region = fileName[1]
+    if not(Regions.validRegionCodes(region)):
+        raise FileImportError("Invalid regional code.")
+    
+    try:
+        Read_Sales()
+    
+    except FileImportError:
+        raise FileImportError(f"File {fileName} was not found.")

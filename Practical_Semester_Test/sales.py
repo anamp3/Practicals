@@ -139,12 +139,11 @@ def Import_Sales(sales):
 
 
     '''this is for opening the textfile and checking to see if the csv file has been imported or not'''
-    with open('imported_files.txt', 'r') as f:
-        imported_files = f.readlines()
+    
 
     '''This is the while loop that checks the textfile'''
     while True:
-        if files.FILE+ '\n' in imported_files:
+        if files.FILE+ '\n' in files.imported_files:
             print('This file has already been imported. Please clear the imported files and import once more.')
             print()
             break
