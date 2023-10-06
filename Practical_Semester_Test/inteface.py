@@ -1,5 +1,6 @@
+import datetime
 import classes
-from classes import Regions, Region, DailySales, SalesList,File, FileImportError
+from classes import Regions, Region, DailySales, SalesList,File, FileImportError, DATE_FORMAT
 import files
 
 def Command_Menu():
@@ -61,7 +62,15 @@ def main():
 
 
             
-        # elif command.lower() == "view":
+        elif command.lower() == "view":
+            date = ''
+            region = ''
+            amount = 0
+            quarter = 0
+            daily = DailySales(date, region, amount, quarter)
+
+            value = daily.convRowofFile(files.FILE)
+            print (value)
 
 
             
